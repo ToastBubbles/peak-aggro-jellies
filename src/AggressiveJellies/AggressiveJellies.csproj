@@ -21,6 +21,9 @@
     <Reference Include="BepInEx">
       <HintPath>C:\Users\jeffn\AppData\Roaming\Thunderstore Mod Manager\DataFolder\PEAK\profiles\stableNOTS2\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
+    <Reference Include="PhotonRealtime">
+      <HintPath>..\..\..\..\..\..\SteamLibrary\steamapps\common\PEAK\PEAK_Data\Managed\PhotonRealtime.dll</HintPath>
+    </Reference>
     <Reference Include="PhotonUnityNetworking">
       <HintPath>..\..\..\..\..\..\SteamLibrary\steamapps\common\PEAK\PEAK_Data\Managed\PhotonUnityNetworking.dll</HintPath>
     </Reference>

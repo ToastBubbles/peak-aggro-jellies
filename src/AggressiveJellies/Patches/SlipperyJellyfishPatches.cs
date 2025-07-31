@@ -18,6 +18,36 @@ namespace AggressiveJellies
 
             return method.Invoke(character, new object[] { type }) as Rigidbody;
         }
+        private static void SetDebugText(SlipperyJellyfish jellyfish, string text)
+        {
+            var debug = jellyfish.GetComponent<JellyfishDebugText>();
+            if (debug != null)
+            {
+                debug.SetText(text);
+            }
+        }
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(SlipperyJellyfish), "Start")]
+        private static void SlipperyJellyfish_Start_Postfix(SlipperyJellyfish __instance)
+        {
+            GameObject debugTextObj = new GameObject("DebugTextMesh");
+            debugTextObj.transform.SetParent(__instance.transform, false);
+            debugTextObj.transform.localPosition = Vector3.up * 2f;
+
+            TextMesh tm = debugTextObj.AddComponent<TextMesh>();
+            tm.fontSize = 64;
+            tm.characterSize = 0.2f;
+            tm.anchor = TextAnchor.MiddleCenter;
+            tm.alignment = TextAlignment.Center;
+            tm.color = Color.black;
+            tm.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            tm.GetComponent<MeshRenderer>().material = tm.font.material;
+
+            var debugText = __instance.gameObject.AddComponent<JellyfishDebugText>();
+            debugText.textMesh = tm;
+            debugText.Init(Camera.main.transform);
+            debugText.SetText("Spawned");
+        }
 
 
         [HarmonyPostfix]
@@ -51,6 +81,7 @@ namespace AggressiveJellies
             }
 
             if (nearestPlayer == null) return;
+            
 
             Rigidbody? targetFoot = GetFootRigidbody(nearestPlayer, BodypartType.Foot_R);
             if (targetFoot == null) return;
@@ -75,6 +106,7 @@ namespace AggressiveJellies
 
             if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit groundHit, 5f, LayerMask.GetMask("Terrain", "Map")))
             {
+                SetDebugText(jellyfish, "Hit Wall");
                 nextPos.y = groundHit.point.y + 0.1f;
                 jellyfish.transform.position = nextPos;
                 Quaternion terrainRot = Quaternion.FromToRotation(jellyfish.transform.up, groundHit.normal) * jellyfish.transform.rotation;
@@ -82,11 +114,10 @@ namespace AggressiveJellies
             }
             else
             {
+                SetDebugText(jellyfish, "Chasing Player");
                 jellyfish.transform.position += forwardOffset;
                 jellyfish.transform.rotation = Quaternion.Slerp(jellyfish.transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 5f);
             }
         }
-
-        // Optional: Patch Trigger() or OnTriggerEnter() similarly
     }
 }
